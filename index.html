@@ -1,11 +1,106 @@
-    <!DOCTYPE html>
-    <html lang="fa" dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <title>سایت تست</title>
-    </head>
-    <body>
-        <h1>به سایت من خوش آمدید</h1>
-        <p>این متن توسط ربات ویرایش خواهد شد.</p>
-    </body>
-    </html>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فروشگاه هوشمند | چت و خرید</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #f0f0f0; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
+        
+        /* هدر نقره‌ای و نارنجی */
+        header { background: linear-gradient(135deg, #bdc3c7, #2c3e50); color: white; padding: 15px; text-align: center; border-bottom: 4px solid #ff9800; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        h1 { margin: 0; font-size: 1.2rem; }
+        
+        /* محیط چت */
+        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #e5e5e5; }
+        
+        .message { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 14px; line-height: 1.5; position: relative; animation: fadeIn 0.3s ease; }
+        .user-msg { align-self: flex-end; background: #ff9800; color: white; border-bottom-left-radius: 2px; }
+        .bot-msg { align-self: flex-start; background: white; color: #333; border-bottom-right-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        
+        /* بخش ورودی پیام */
+        #input-area { padding: 10px; background: white; border-top: 1px solid #ddd; display: flex; gap: 10px; align-items: center; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-family: inherit; }
+        input:focus { border-color: #ff9800; }
+        button { background: #ff9800; color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #e68900; }
+        button:disabled { background: #ccc; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>فروشگاه و دستیار هوشمند</h1>
+</header>
+
+<div id="chat-container">
+    <div class="message bot-msg">سلام! 👋 من دستیار هوشمند فروشگاه هستم. می‌تونید درباره محصولات بپرسید یا اگر مدیر هستید، رمز عبور رو وارد کنید تا وارد پنل مدیریت بشید.</div>
+</div>
+
+<div id="input-area">
+    <input type="text" id="user-input" placeholder="پیام خود را بنویسید...">
+    <button onclick="sendMessage()" id="send-btn">ارسال</button>
+</div>
+
+<script>
+    // آدرس وب‌هوک نهایی شما
+    const WEBHOOK_URL = 'https://34109-qzpoy.s3.irann8n.com/webhook/win1';
+
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const btn = document.getElementById('send-btn');
+        const chatBox = document.getElementById('chat-container');
+        const text = input.value.trim();
+
+        if (!text) return;
+
+        // 1. نمایش پیام کاربر
+        addMessage(text, 'user-msg');
+        input.value = '';
+        btn.disabled = true;
+        btn.innerText = '...';
+
+        try {
+            // 2. ارسال به n8n
+            const response = await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text }) // ارسال متن به عنوان message
+            });
+
+            const data = await response.json();
+
+            // 3. نمایش پاسخ ربات
+            // اگر ربات پاسخی داد، نمایش بده. اگر نه، پیام پیش‌فرض.
+            const botReply = data.output || data.text || JSON.stringify(data);
+            addMessage(botReply, 'bot-msg');
+
+        } catch (error) {
+            console.error(error);
+            addMessage("خطا در ارتباط با سرور. لطفا دوباره تلاش کنید.", 'bot-msg');
+        }
+
+        btn.disabled = false;
+        btn.innerText = 'ارسال';
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function addMessage(text, className) {
+        const chatBox = document.getElementById('chat-container');
+        const div = document.createElement('div');
+        div.className = `message ${className}`;
+        div.innerText = text;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // ارسال با دکمه Enter
+    document.getElementById('user-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') sendMessage();
+    });
+</script>
+
+</body>
+</html>
