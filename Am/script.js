@@ -1,49 +1,70 @@
-// 🔴 فقط این آدرس رو با وبهوک n8n خودت عوض کن
-const WEBHOOK_URL = "https://34109-qzpoy.s3.irann8n.com/webhook-test/win1";
+// ⚠️ مهم: آدرس زیر را پاک کن و آدرس Production URL خودت را داخل گیومه بگذار
+const WEBHOOK_URL = "https://34109-qzpoy.s3.irann8n.com/webhook-test/win1"; 
 
-const messages = document.getElementById("messages");
-const input = document.getElementById("text");
+async function sendMessage() {
+    const inputField = document.getElementById('user-input');
+    const chatBox = document.getElementById('chat-box');
+    const message = inputField.value.trim();
 
-function add(text, type) {
-    const div = document.createElement("div");
-    div.className = `msg ${type}`;
-    div.innerHTML = `<div class="bubble">${text}</div>`;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
-}
+    if (!message) return;
 
-async function send() {
-    const text = input.value.trim();
-    if (!text) return;
-
-    add(text, "user");
-    input.value = "";
-
-    add("در حال نوشتن…", "bot");
+    // ۱. نمایش پیام کاربر در صفحه
+    addMessage(message, 'user-message');
+    inputField.value = '';
+    
+    // نمایش حالت "در حال تایپ..." (اختیاری)
+    const loadingId = addMessage('...', 'bot-message');
 
     try {
-        const res = await fetch(WEBHOOK_URL, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ chatInput: text })
+        // ۲. ارسال به n8n
+        const response = await fetch(WEBHOOK_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ chatInput: message }) 
         });
 
-        const raw = await res.text();
-        messages.lastChild.remove();
+        // ۳. دریافت جواب
+        const data = await response.json();
+        
+        // حذف پیام "در حال تایپ"
+        removeMessage(loadingId);
 
-        let reply = raw;
+        // ۴. نمایش جواب ربات
+        // سعی میکنیم reply رو بگیریم، اگه نبود output رو میگیریم
+        const botReply = data.reply || data.output || JSON.stringify(data);
+        addMessage(botReply, 'bot-message');
 
-        try {
-            const json = JSON.parse(raw);
-            if (json.reply) reply = json.reply;
-        } catch {}
-
-        add(reply, "bot");
-
-    } catch (e) {
-        messages.lastChild.remove();
-        add("❌ اتصال برقرار نشد", "bot");
-        console.error(e);
+    } catch (error) {
+        console.error('Error:', error);
+        removeMessage(loadingId);
+        addMessage('خطا در ارتباط با سرور.', 'bot-message');
     }
 }
 
+// توابع کمکی برای ساخت ظاهر پیام‌ها
+function addMessage(text, className) {
+    const chatBox = document.getElementById('chat-box');
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message ${className}`;
+    msgDiv.textContent = text;
+    msgDiv.id = 'msg-' + Date.now();
+    chatBox.appendChild(msgDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    return msgDiv.id;
+}
+
+function removeMessage(id) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.remove();
+    }
+}
+
+// زدن اینتر برای ارسال
+document.getElementById('user-input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
