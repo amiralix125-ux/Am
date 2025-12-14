@@ -1,17 +1,114 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>چت هوشمند</title>
-
     <style>
         body {
             margin: 0;
-            height: 100vh;
-            background: #0f0f0f;
-            font-family: sans-serif;
+            padding: 0;
+            background-color: #1a1a1a; /* رنگ سیاه پس‌زمینه */
+            font-family: Tahoma, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #fff;
+            height: 100vh;
+            color: white;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 400px;
+            background-color: #2d2d2d;
+            border-radius: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            height: 80vh; /* ارتفاع ثابت */
+        }
+
+        #chat-box {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 10px;
+            max-width: 75%;
+            word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .user-message {
+            background-color: #007bff;
+            align-self: flex-start; /* پیام کاربر سمت راست */
+            border-bottom-right-radius: 2px;
+        }
+
+        .bot-message {
+            background-color: #444;
+            align-self: flex-end; /* پیام ربات سمت چپ */
+            border-bottom-left-radius: 2px;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 10px;
+            background-color: #333;
+            border-top: 1px solid #444;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            background-color: #444;
+            color: white;
+            text-align: right;
+        }
+
+        button {
+            margin-right: 10px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- بدنه اصلی چت -->
+    <div class="chat-container">
+        <div id="chat-box">
+            <div class="message bot-message">سلام! چطور می‌تونم کمکت کنم؟</div>
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="پیام خود را بنویسید...">
+            <button onclick="sendMessage()">ارسال</button>
+        </div>
+    </div>
+
+    <!-- اتصال به فایل جاوااسکریپت -->
+    <script src="script.js"></script>
+
+</body>
+</html>
