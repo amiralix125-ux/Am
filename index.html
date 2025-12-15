@@ -245,7 +245,7 @@
 
     <script>
         // ==========================================
-        //  👇 لینک وب‌هوک خود را در خط پایین کپی کنید
+        //  👇 لینک وب‌هوک شما تنظیم شده است
         // ==========================================
         const WEBHOOK_URL = 'https://34109-qzpoy.s3.irann8n.com/webhook/win1'; 
         // ==========================================
@@ -288,7 +288,6 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         message: text,
-                        // اگر بخواهید تاریخ و زمان هم بفرستید:
                         timestamp: new Date().toISOString()
                     })
                 });
@@ -297,7 +296,8 @@
 
                 const data = await response.json();
                 
-                // n8n معمولا جواب را در فیلد output یا text برمی‌گرداند
+                // دریافت پاسخ از n8n
+                // این خط چک می‌کند که خروجی شما در کدام متغیر است (output, text, یا response)
                 const replyText = data.output || data.text || data.response || "پیام دریافت شد (بدون متن پاسخ).";
 
                 removeLoading(loadingId);
@@ -306,12 +306,7 @@
             } catch (error) {
                 console.error(error);
                 removeLoading(loadingId);
-                // اگر وب‌هوک ست نشده باشد این پیام می‌آید
-                if (WEBHOOK_URL.includes('YOUR-WEBHOOK')) {
-                    addMessage("⚠️ لینک وب‌هوک تنظیم نشده است. لطفا فایل را ویرایش کنید.", 'bot');
-                } else {
-                    addMessage("⚠️ خطا در ارتباط با سرور.", 'bot');
-                }
+                addMessage("⚠️ خطا در ارتباط با سرور هوش مصنوعی.", 'bot');
             } finally {
                 toggleInput(true);
                 userInput.focus();
