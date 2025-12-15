@@ -1,274 +1,219 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WM AI</title>
+  <meta charset="UTF-8">
+  <title>WM AI Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* تنظیمات اصلی صفحه */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Tahoma, sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden; /* جلوگیری از اسکرول کل صفحه */
+    }
 
-<style>
-/* --- تنظیمات ظاهری (Design) --- */
-:root{
-  --brick-orange:#C55A1C;
-  --navy:#141A26;
-  --charcoal:#1E222B;
-  --warm-silver:#E3E6EB;
-  --silver-light:#F1F3F7;
-  --heritage-green:#7A7F55;
-}
+    /* هدر */
+    .header {
+      background-color: #1a1a2e;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+    .header h1 { margin: 0; font-size: 1.5rem; }
+    .header span { color: #e94560; }
+    .subtitle { font-size: 0.8rem; color: #aaa; letter-spacing: 3px; margin-top: 5px; }
 
-*{box-sizing:border-box}
+    /* فضای چت */
+    .chat {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      padding-bottom: 90px; /* فضای خالی برای فوتر */
+    }
 
-body{
-  margin:0;
-  font-family:Tahoma,"Segoe UI",sans-serif;
-  background: linear-gradient(160deg,#f2f4f8,#d6dbe4 55%,#c9cfda);
-  direction:rtl;
-  text-align:right;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* جلوگیری از اسکرول صفحه اصلی */
-}
+    /* پیام‌ها */
+    .msg {
+      max-width: 75%;
+      padding: 12px 16px;
+      border-radius: 15px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      position: relative;
+      word-wrap: break-word;
+    }
+    .bot {
+      background-color: #fff;
+      color: #333;
+      border-top-right-radius: 2px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      align-self: flex-start;
+    }
+    .user {
+      background-color: #16213e;
+      color: #fff;
+      border-top-left-radius: 2px;
+      align-self: flex-end;
+    }
 
-/* ===== HERO (سربرگ) ===== */
-.hero{
-  direction:ltr;
-  unicode-bidi:embed;
-  background: linear-gradient(180deg,var(--navy),var(--charcoal));
-  padding:20px;
-  text-align:center;
-  border-bottom:3px solid var(--brick-orange);
-  flex-shrink: 0;
-  z-index: 10;
-}
+    /* واترمارک پس‌زمینه */
+    .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 4rem;
+      font-weight: bold;
+      color: rgba(0, 0, 0, 0.05);
+      pointer-events: none;
+      z-index: 0;
+      letter-spacing: 5px;
+    }
 
-.hero h1{
-  margin:0;
-  font-size:28px;
-  letter-spacing:6px;
-  color:#fff;
-}
+    /* فوتر و ورودی متن - اصلاح شده برای حل مشکل تایپ */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #fff;
+      padding: 15px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
+      z-index: 9999; /* لایه را بالاترین حد ممکن می‌برد */
+    }
 
-.hero h1 span{
-  color:var(--brick-orange);
-}
+    #user-input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 25px;
+      outline: none;
+      font-family: inherit;
+      font-size: 1rem;
+      background-color: #f9f9f9;
+    }
+    #user-input:focus { border-color: #e94560; background-color: #fff; }
 
-.hero p{
-  margin-top:5px;
-  font-size:10px;
-  letter-spacing:3.5px;
-  color:rgba(255,255,255,.6);
-}
+    #send-btn {
+      background-color: #e94560;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      margin-right: 10px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+      font-family: inherit;
+    }
+    #send-btn:disabled { background-color: #ccc; cursor: not-allowed; }
 
-/* ===== APP Container ===== */
-.app{
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  background:linear-gradient(180deg,var(--warm-silver),var(--silver-light));
-  display: flex;
-  flex-direction: column;
-  flex: 1; /* پر کردن فضای باقی‌مانده */
-  position: relative;
-  box-shadow:0 0 20px rgba(0,0,0,.1);
-}
-
-/* ===== CHAT AREA ===== */
-.chat{
-  position:relative;
-  padding:20px;
-  flex: 1;
-  overflow-y: auto; /* اسکرول خوردن پیام‌ها */
-  background: linear-gradient(180deg,#eef1f6,#dde3ee);
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  padding-bottom: 20px;
-}
-
-/* واترمارک پس‌زمینه */
-.chat::before{
-  content:"WINWIN";
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  font-size:60px;
-  letter-spacing:10px;
-  font-weight:600;
-  color:rgba(20,26,38,.06);
-  pointer-events:none;
-  white-space:nowrap;
-  direction:ltr;
-}
-
-/* ===== MESSAGES ===== */
-.msg{
-  max-width:80%;
-  padding:12px 16px;
-  font-size:14px;
-  line-height:1.6;
-  position: relative;
-  word-wrap: break-word;
-}
-
-.msg.bot{
-  align-self: flex-start; /* ربات سمت چپ (در RTL راست دیده می‌شود اگر LTR باشد، اما اینجا راست است) */
-  background:#fff;
-  border-radius:18px 18px 18px 2px;
-  box-shadow:0 2px 5px rgba(0,0,0,.05);
-  color: #333;
-  margin-right: auto; /* هل دادن به راست */
-}
-
-.msg.user{
-  align-self: flex-end; /* کاربر سمت چپ */
-  background: linear-gradient(145deg, rgba(197,90,28,.15), rgba(122,127,85,.1));
-  border-left:4px solid var(--brick-orange);
-  border-radius:18px 18px 2px 18px;
-  color: #000;
-  margin-left: auto; /* هل دادن به چپ */
-}
-
-/* ===== FOOTER / INPUT ===== */
-.footer{
-  display:flex;
-  gap:10px;
-  padding:15px;
-  background:#fff;
-  border-top:1px solid rgba(0,0,0,.1);
-  flex-shrink: 0;
-}
-
-.footer input{
-  flex:1;
-  padding:12px 15px;
-  border-radius:25px;
-  border:1px solid #ccc;
-  background:#f9f9f9;
-  text-align:right;
-  font-family: inherit;
-  outline: none;
-}
-
-.footer input:focus{
-  border-color:var(--brick-orange);
-  background: #fff;
-}
-
-.footer button{
-  padding:0 20px;
-  border:none;
-  border-radius:25px;
-  background: var(--navy);
-  color:#fff;
-  font-weight:bold;
-  cursor:pointer;
-  transition: background 0.2s;
-}
-
-.footer button:hover {
-    background: var(--brick-orange);
-}
-
-.footer button:disabled {
-    background: #ccc;
-    cursor: wait;
-}
-
-</style>
+  </style>
 </head>
-
 <body>
 
-<!-- بخش هدر -->
-<div class="hero">
-  <h1><span>WM</span> AI</h1>
-  <p>WINWIN</p>
-</div>
+  <!-- هدر -->
+  <div class="header">
+    <h1>WM <span>AI</span></h1>
+    <div class="subtitle">WINWIN</div>
+  </div>
 
-<!-- بخش اصلی چت -->
-<div class="app">
-    
-    <div class="chat" id="chat-box">
-        <!-- پیام خوش‌آمدگویی -->
-        <div class="msg bot">سلام! من هوش مصنوعی WM هستم. چطور می‌تونم کمکت کنم؟ 👋</div>
-    </div>
+  <!-- واترمارک -->
+  <div class="watermark">WINWIN</div>
 
-    <!-- بخش ورودی پیام -->
-    <div class="footer">
-        <input type="text" id="user-input" placeholder="پیام خود را بنویسید..." autocomplete="off">
-        <button id="send-btn" onclick="sendMessage()">ارسال</button>
-    </div>
+  <!-- بخش اصلی چت -->
+  <div class="chat" id="chat-box">
+    <!-- پیام خوش‌آمدگویی -->
+    <div class="msg bot">سلام! من هوش مصنوعی WM هستم. چطور می‌تونم کمکت کنم؟ 👋</div>
+  </div>
 
-</div>
+  <!-- بخش ورودی پیام -->
+  <div class="footer">
+    <input type="text" id="user-input" placeholder="پیام خود را بنویسید..." autocomplete="off">
+    <button id="send-btn" onclick="sendMessage()">ارسال</button>
+  </div>
 
-<!-- اسکریپت اتصال به n8n -->
-<script>
-    // ⚠️ آدرس هوک n8n شما
+  <!-- اسکریپت اتصال به n8n -->
+  <script>
+    // 👇 آدرس دقیق وب‌هوک (بدون test)
     const WEBHOOK_URL = 'https://34109-qzpoy.s3.irann8n.com/webhook-test/win1';
 
     const chatBox = document.getElementById('chat-box');
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
 
+    // ارسال با دکمه اینتر
+    userInput.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
     // تابع افزودن پیام به صفحه
     function appendMessage(text, sender) {
-        const div = document.createElement('div');
-        div.classList.add('msg', sender);
-        div.innerText = text;
-        chatBox.appendChild(div);
-        chatBox.scrollTop = chatBox.scrollHeight; // اسکرول خودکار به پایین
+      const div = document.createElement('div');
+      div.classList.add('msg', sender);
+      div.innerText = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight; // اسکرول خودکار به پایین
     }
 
     // تابع ارسال پیام
     async function sendMessage() {
-        const text = userInput.value.trim();
-        if (!text) return;
+      const text = userInput.value.trim();
+      if (!text) return;
 
-        // 1. نمایش پیام کاربر
-        appendMessage(text, 'user');
-        userInput.value = '';
-        
-        // غیرفعال کردن دکمه هنگام پردازش
-        sendBtn.disabled = true;
-        sendBtn.innerText = '...';
+      // 1. نمایش پیام کاربر
+      appendMessage(text, 'user');
+      userInput.value = '';
 
-        try {
-            // 2. ارسال درخواست به n8n
-            const response = await fetch(WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chatInput: text }) 
-            });
+      // غیرفعال کردن دکمه هنگام پردازش
+      sendBtn.disabled = true;
+      sendBtn.innerText = '...';
 
-            if (response.ok) {
-                const data = await response.json();
-                // دریافت پاسخ از n8n (به دنبال فیلد output یا text یا message می‌گردد)
-                const botReply = data.output || data.text || data.message || JSON.stringify(data);
-                appendMessage(botReply, 'bot');
-            } else {
-                appendMessage('خطا در ارتباط با سرور.', 'bot');
-            }
+      try {
+        // 2. ارسال درخواست به n8n
+        const response = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
 
-        } catch (error) {
-            console.error(error);
-            appendMessage('مشکل در اتصال اینترنت.', 'bot');
-        } finally {
-            sendBtn.disabled = false;
-            sendBtn.innerText = 'ارسال';
-            userInput.focus();
+        // 3. دریافت پاسخ
+        if (response.ok) {
+          const data = await response.json();
+          // فرض می‌کنیم پاسخ n8n در فیلدی به نام output یا text است
+          // اگر n8n خروجی جیسون می‌دهد، باید مطمئن شویم چه فیلدی برمی‌گرداند
+          // اینجا کل پاسخ را به صورت متنی نمایش می‌دهیم یا فیلد خاصی را
+          const botReply = data.output || data.text || data.message || JSON.stringify(data);
+          appendMessage(botReply, 'bot');
+        } else {
+          appendMessage('خطا در دریافت پاسخ از سرور.', 'bot');
         }
+
+      } catch (error) {
+        console.error('Error:', error);
+        appendMessage('مشکل در اتصال به اینترنت یا سرور.', 'bot');
+      } finally {
+        // فعال کردن مجدد دکمه
+        sendBtn.disabled = false;
+        sendBtn.innerText = 'ارسال';
+        userInput.focus();
+      }
     }
-
-    // ارسال با دکمه Enter
-    userInput.addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            sendMessage();
-        }
-    });
-</script>
+  </script>
 
 </body>
 </html>
