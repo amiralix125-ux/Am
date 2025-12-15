@@ -294,14 +294,24 @@
 
                 if (!response.ok) throw new Error('Network error');
 
-                const data = await response.json();
-                
-                // دریافت پاسخ از n8n
-                // این خط چک می‌کند که خروجی شما در کدام متغیر است (output, text, یا response)
-                const replyText = data.output || data.text || data.response || "پیام دریافت شد (بدون متن پاسخ).";
+            const data = await response.json();
+            
+            // کد اصلاح شده برای پیدا کردن پاسخ (چه در لیست باشد چه نباشد)
+            let replyText = "";
+            
+            if (Array.isArray(data) && data.length > 0) {
+                // اگر پاسخ داخل کروشه [] بود
+                replyText = data[0].output || data[0].text || data[0].response || data[0].content;
+            } else {
+                // اگر پاسخ ساده {} بود
+                replyText = data.output || data.text || data.response || data.content;
+            }
 
-                removeLoading(loadingId);
-                addMessage(replyText, 'bot');
+            // اگر هیچ متنی پیدا نشد
+            if (!replyText) replyText = "پاسخی دریافت نشد (بررسی کنید n8n خروجی دارد؟)";
+
+            removeLoading(loadingId);
+            addMessage(replyText, 'bot');
 
             } catch (error) {
                 console.error(error);
