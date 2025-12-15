@@ -1,180 +1,109 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WM AI</title>
-
-<style>
-:root{
-  --brick-orange:#C55A1C;
-  --navy:#141A26;
-  --charcoal:#1E222B;
-  --warm-silver:#E3E6EB;
-  --silver-light:#F1F3F7;
-  --heritage-green:#7A7F55;
-}
-
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Tahoma,"Segoe UI",sans-serif;
-  background:
-    linear-gradient(160deg,#f2f4f8,#d6dbe4 55%,#c9cfda);
-  direction:rtl;
-  text-align:right;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ===== HERO ===== */
-.hero{
-  direction:ltr;
-  unicode-bidi:embed;
-  background:
-    linear-gradient(180deg,var(--navy),var(--charcoal));
-  padding:40px 20px;
-  text-align:center;
-  border-bottom:3px solid var(--brick-orange);
-  flex-shrink: 0;
-}
-
-.hero h1{
-  margin:0;
-  font-size:32px;
-  letter-spacing:6px;
-  color:#fff;
-}
-
-.hero h1 span{
-  color:var(--brick-orange);
-}
-
-.hero p{
-  margin-top:10px;
-  font-size:12px;
-  letter-spacing:3.5px;
-  color:rgba(255,255,255,.6);
-}
-
-/* ===== APP ===== */
-.app{
-  width: 95%;
-  max-width:920px;
-  margin: -30px auto 20px;
-  background:linear-gradient(180deg,var(--warm-silver),var(--silver-light));
-  border-radius:22px;
-  overflow:hidden;
-  box-shadow:0 40px 90px rgba(0,0,0,.35);
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-/* ===== CHAT ===== */
-.chat{
-  position:relative;
-  padding:20px;
-  flex: 1;
-  overflow-y: auto;
-  background: linear-gradient(180deg,#eef1f6,#dde3ee);
-  display: flex;
-  flex-direction: column;
-}
-
-/* ===== WINWIN WATERMARK ===== */
-.chat::before{
-  content:"WINWIN";
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  font-size:80px;
-  letter-spacing:14px;
-  font-weight:600;
-  color:rgba(20,26,38,.06);
-  pointer-events:none;
-  white-space:nowrap;
-  direction:ltr;
-}
-
-/* ===== MESSAGES ===== */
-.msg{
-  max-width:75%;
-  padding:14px 18px;
-  margin-bottom:14px;
-  font-size:14px;
-  line-height:1.8;
-  word-wrap: break-word;
-}
-
-.msg.bot{
-  align-self: flex-start; /* ربات سمت راست */
-  background:#fff;
-  border-radius:18px 18px 18px 6px;
-  box-shadow:0 5px 15px rgba(0,0,0,.08);
-  color: #333;
-}
-
-.msg.user{
-  align-self: flex-end; /* کاربر سمت چپ */
-  background: linear-gradient(145deg, rgba(197,90,28,.12), rgba(122,127,85,.08));
-  border-left:4px solid var(--brick-orange);
-  border-radius:18px 18px 6px 18px;
-  color: #000;
-}
-
-/* ===== FOOTER / INPUT ===== */
-.footer{
-  display:flex;
-  gap:10px;
-  padding:15px;
-  background:linear-gradient(180deg,#ffffff,#f0f2f6);
-  border-top:1px solid rgba(0,0,0,.12);
-  flex-shrink: 0;
-}
-
-.footer input{
-  flex:1;
-  padding:14px 18px;
-  border-radius:14px;
-  border:1px solid rgba(0,0,0,.2);
-  background:#fff;
-  text-align:right;
-  font-family: inherit;
-}
-
-.footer input:focus{
-  outline:none;
-  border-color:var(--brick-orange);
-}
-
-.footer button{
-  padding:0 25px;
-  border:none;
-  border-radius:14px;
-  background: linear-gradient(180deg,var(--navy),var(--charcoal));
-  color:#fff;
-  font-weight:bold;
-  cursor:pointer;
-  transition: transform 0.1s;
-}
-.footer button:active {
-    transform: scale(0.95);
-}
-.loading-text {
-    font-size: 12px;
-    color: #888;
-    margin-right: 5px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WM AI Chat</title>
+    <style>
+        /* استایل‌های گرافیکی (CSS) */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .chat-container { width: 100%; max-width: 450px; height: 90vh; background-color: #1e1e1e; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; border: 1px solid #333; }
+        .chat-header { background-color: #2c2c2c; padding: 15px; text-align: center; border-bottom: 1px solid #333; font-weight: bold; font-size: 1.2rem; color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .status-dot { width: 10px; height: 10px; background-color: #00e676; border-radius: 50%; box-shadow: 0 0 5px #00e676; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scrollbar-width: thin; scrollbar-color: #444 #1e1e1e; }
+        .message { max-width: 80%; padding: 12px 16px; border-radius: 15px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
+        .message.user { align-self: flex-end; background: linear-gradient(135deg, #007bff, #0056b3); color: white; border-bottom-left-radius: 2px; }
+        .message.bot { align-self: flex-start; background-color: #2a2a2a; color: #ddd; border: 1px solid #333; border-bottom-right-radius: 2px; }
+        .chat-input-area { padding: 15px; background-color: #2c2c2c; border-top: 1px solid #333; display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #444; background-color: #1a1a1a; color: white; outline: none; transition: border 0.3s; }
+        input[type="text"]:focus { border-color: #007bff; }
+        button { padding: 10px 20px; border-radius: 25px; border: none; background-color: #007bff; color: white; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #444; cursor: not-allowed; }
+        .loading { font-size: 0.8rem; opacity: 0.7; font-style: italic; margin-top: 5px; }
+    </style>
 </head>
-
 <body>
 
-<div class="hero">
-  <h1><span>WM</span> AI</h1>
-  <p>WINWIN</p>
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="status-dot"></div>
+        WM AI Assistant
+    </div>
+    <div class="chat-messages" id="chat-messages">
+        <div class="message bot">سلام! چطور می‌تونم کمکت کنم؟ 👋</div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="user-input" placeholder="پیام خود را بنویسید...">
+        <button onclick="sendMessage()" id="send-btn">ارسال</button>
+    </div>
 </div>
+
+<script>
+    // آدرس وب‌هوک n8n شما (از اسکرین‌شات‌ها استخراج شده)
+    const WEBHOOK_URL = 'https://34109-qzpoy.s3.irann8n.com/webhook/win1';
+
+    const messageContainer = document.getElementById('chat-messages');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    // ارسال با زدن دکمه Enter
+    userInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        // 1. نمایش پیام کاربر
+        addMessage(text, 'user');
+        userInput.value = '';
+        
+        // غیرفعال کردن دکمه هنگام ارسال
+        sendBtn.disabled = true;
+        sendBtn.innerText = '...';
+
+        try {
+            // 2. ارسال به n8n
+            const response = await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chatInput: text }) 
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // 3. نمایش پاسخ ربات (فرض بر این است که پاسخ در فیلد output است)
+                // اگر n8n خروجی دیگری می‌دهد، اینجا باید تغییر کند.
+                const botReply = data.output || data.text || data.message || JSON.stringify(data);
+                addMessage(botReply, 'bot');
+            } else {
+                addMessage('خطا در ارتباط با سرور.', 'bot');
+                console.error('Server Error:', response.status);
+            }
+
+        } catch (error) {
+            addMessage('مشکل در اتصال به اینترنت یا سرور.', 'bot');
+            console.error('Fetch Error:', error);
+        } finally {
+            sendBtn.disabled = false;
+            sendBtn.innerText = 'ارسال';
+        }
+    }
+
+    function addMessage(text, sender) {
+        const div = document.createElement('div');
+        div.classList.add('message', sender);
+        div.innerText = text;
+        messageContainer.appendChild(div);
+        messageContainer.scrollTop = messageContainer.scrollHeight; // اسکرول به پایین
+    }
+</script>
+
+</body>
+</html>
