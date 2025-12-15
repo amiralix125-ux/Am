@@ -3,150 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WM AI Chat</title>
+    <title>WM AI</title>
     <style>
-        /* تنظیمات حیاتی برای موبایل: استفاده از Flexbox برای کل صفحه */
-        html, body {
-            height: 100%; /* ارتفاع ۱۰۰ درصد واقعی */
+        :root {
+            --brick-orange: #C55A1C;
+            --navy: #141A26;
+            --charcoal: #1E222B;
+            --warm-silver: #E3E6EB;
+            --silver-light: #F1F3F7;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
             margin: 0;
             padding: 0;
-            font-family: Tahoma, sans-serif;
-            background-color: #f4f6f9;
-            display: flex;
-            flex-direction: column; /* چیدمان ستونی: بالا به پایین */
-            overflow: hidden; /* جلوگیری از اسکرول اضافه */
-        }
-
-        /* 1. هدر (ثابت بالا) */
-        .header {
-            background-color: #1a1a2e;
-            color: #fff;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            flex-shrink: 0; /* جلوگیری از له شدن هدر */
-            z-index: 10;
-        }
-        .header h1 { margin: 0; font-size: 1.5rem; }
-        .header span { color: #e94560; }
-        .subtitle { font-size: 0.8rem; color: #aaa; letter-spacing: 3px; margin-top: 5px; }
-
-        /* 2. فضای چت (فضای میانی که کش می‌آید) */
-        .chat-container {
-            flex-grow: 1; /* پر کردن تمام فضای خالی وسط */
-            overflow-y: auto; /* اسکرول فقط در این ناحیه اتفاق بیفتد */
-            padding: 20px;
+            font-family: Tahoma, "Segoe UI", sans-serif;
+            background-color: #f2f4f8;
+            /* این خط معجزه می‌کند: ارتفاع دقیق موبایل */
+            height: 100dvh; 
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            position: relative;
-            background-color: #f4f6f9;
+            overflow: hidden; /* جلوگیری از اسکرول کل صفحه */
         }
 
-        /* واترمارک ثابت وسط چت */
+        /* ===== هدر (ثابت بالا) ===== */
+        .hero {
+            direction: ltr;
+            background: linear-gradient(180deg, var(--navy), var(--charcoal));
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid var(--brick-orange);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-size: 24px; /* کمی کوچک‌تر برای موبایل */
+            letter-spacing: 4px;
+            color: #fff;
+        }
+
+        .hero h1 span { color: var(--brick-orange); }
+
+        .hero p {
+            margin-top: 5px;
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: rgba(255, 255, 255, .6);
+            margin-bottom: 0;
+        }
+
+        /* ===== فضای چت (وسط) ===== */
+        .chat-container {
+            flex-grow: 1; /* پر کردن فضای خالی */
+            position: relative;
+            overflow-y: auto; /* اسکرول فقط اینجا */
+            background: linear-gradient(180deg, #eef1f6, #dde3ee);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            padding-bottom: 20px;
+        }
+
+        /* واترمارک */
         .watermark {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 4rem;
-            font-weight: bold;
-            color: rgba(0, 0, 0, 0.05);
+            font-size: 60px; /* سایز مناسب موبایل */
+            letter-spacing: 10px;
+            font-weight: 600;
+            color: rgba(20, 26, 38, .06);
             pointer-events: none;
-            z-index: 0;
             white-space: nowrap;
+            z-index: 0;
         }
 
-        /* استایل پیام‌ها */
+        /* ===== پیام‌ها ===== */
         .msg {
-            max-width: 75%;
+            max-width: 80%;
             padding: 12px 16px;
-            border-radius: 15px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            position: relative;
+            margin-bottom: 12px;
+            font-size: 14px;
+            line-height: 1.6;
             word-wrap: break-word;
+            position: relative;
             z-index: 1;
         }
-        .bot {
-            background-color: #fff;
-            color: #333;
-            border-top-right-radius: 2px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+        .msg.bot {
             align-self: flex-start;
-        }
-        .user {
-            background-color: #16213e;
-            color: #fff;
-            border-top-left-radius: 2px;
-            align-self: flex-end;
+            background: #fff;
+            border-radius: 18px 18px 18px 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,.05);
+            color: #333;
         }
 
-        /* 3. فوتر (ثابت پایین) */
+        .msg.user {
+            align-self: flex-end;
+            background: linear-gradient(145deg, rgba(197, 90, 28, .12), rgba(122, 127, 85, .08));
+            border-left: 3px solid var(--brick-orange);
+            border-radius: 18px 18px 4px 18px;
+            color: #000;
+        }
+
+        /* ===== فوتر (ثابت پایین) ===== */
         .footer {
-            background-color: #fff;
-            padding: 15px;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            background: #fff;
+            padding: 10px 15px;
+            border-top: 1px solid rgba(0,0,0,.1);
             display: flex;
             align-items: center;
-            flex-shrink: 0; /* جلوگیری از غیب شدن فوتر */
-            z-index: 10;
+            gap: 10px;
+            flex-shrink: 0; /* جلوگیری از جمع شدن */
+            z-index: 20;
         }
 
-        #user-input {
+        .footer input {
             flex: 1;
             padding: 12px;
-            border: 1px solid #ddd;
             border-radius: 25px;
-            outline: none;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
             font-family: inherit;
-            font-size: 1rem;
-            background-color: #f9f9f9;
+            font-size: 14px;
+            outline: none;
         }
-        #user-input:focus { border-color: #e94560; background-color: #fff; }
 
-        #send-btn {
-            background-color: #e94560;
+        .footer input:focus {
+            border-color: var(--brick-orange);
+            background: #fff;
+        }
+
+        .footer button {
+            background: var(--brick-orange);
             color: white;
             border: none;
             padding: 12px 20px;
-            margin-right: 10px;
             border-radius: 25px;
-            cursor: pointer;
             font-weight: bold;
+            cursor: pointer;
             font-family: inherit;
+            white-space: nowrap;
         }
-        #send-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        .footer button:disabled {
+            background: #ccc;
+        }
+
     </style>
 </head>
 <body>
 
-    <!-- بخش 1: هدر -->
-    <div class="header">
-        <h1>WM <span>AI</span></h1>
-        <div class="subtitle">WINWIN</div>
+    <!-- هدر -->
+    <div class="hero">
+        <h1><span>WM</span> AI</h1>
+        <p>WINWIN</p>
     </div>
 
-    <!-- بخش 2: فضای چت -->
+    <!-- فضای چت -->
     <div class="chat-container" id="chat-box">
         <div class="watermark">WINWIN</div>
-        <div class="msg bot">سلام! من هوش مصنوعی WM هستم. چطور می‌تونم کمکت کنم؟ 👋</div>
+        <div class="msg bot">سلام! من هوش مصنوعی WM هستم. چطور می‌تونم کمکت کنم؟ 🤚</div>
     </div>
 
-    <!-- بخش 3: ورودی پیام -->
+    <!-- فوتر ورودی -->
     <div class="footer">
         <input type="text" id="user-input" placeholder="پیام خود را بنویسید..." autocomplete="off">
         <button id="send-btn" onclick="sendMessage()">ارسال</button>
     </div>
 
+    <!-- جاوااسکریپت -->
     <script>
-        const WEBHOOK_URL = '= "https://34109-qzpoy.s3.irann8n.com/webhook-test/win1';
+        // آدرس نهایی وب‌هوک
+        const WEBHOOK_URL = 'https://34109-qzpoy.s3.irann8n.com/webhook-test/win1';
 
         const chatBox = document.getElementById('chat-box');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
 
-        // ارسال با دکمه Enter
+        // ارسال با Enter
         userInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
@@ -160,10 +199,7 @@
             div.innerText = text;
             chatBox.appendChild(div);
             // اسکرول نرم به پایین
-            chatBox.scrollTo({
-                top: chatBox.scrollHeight,
-                behavior: 'smooth'
-            });
+            chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
         }
 
         async function sendMessage() {
@@ -174,12 +210,11 @@
             appendMessage(text, 'user');
             userInput.value = '';
 
-            // حالت انتظار
+            // حالت لودینگ
             sendBtn.disabled = true;
             sendBtn.innerText = '...';
 
             try {
-                // ارسال به n8n
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -188,21 +223,20 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    // دریافت پاسخ از هر فیلدی که سرور بفرستد
+                    // پشتیبانی از فرمت‌های مختلف خروجی n8n
                     const botReply = data.output || data.text || data.message || JSON.stringify(data);
                     appendMessage(botReply, 'bot');
                 } else {
-                    appendMessage('خطا در دریافت پاسخ از سرور.', 'bot');
+                    appendMessage('خطا در دریافت پاسخ.', 'bot');
                 }
-
             } catch (error) {
-                console.error('Error:', error);
-                appendMessage('مشکل در اتصال به اینترنت یا سرور.', 'bot');
+                console.error(error);
+                appendMessage('مشکل در اتصال اینترنت.', 'bot');
             } finally {
-                // بازگشت دکمه به حالت اول
                 sendBtn.disabled = false;
                 sendBtn.innerText = 'ارسال';
-                userInput.focus();
+                // فوکوس مجدد روی اینپوت (اختیاری در موبایل برای جلوگیری از باز شدن ناخواسته کیبورد)
+                // userInput.focus(); 
             }
         }
     </script>
