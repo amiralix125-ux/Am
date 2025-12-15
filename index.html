@@ -3,242 +3,368 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WM AI</title>
+    <title>WIN AI Chat</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --brick-orange: #C55A1C;
-            --navy: #141A26;
-            --charcoal: #1E222B;
-            --warm-silver: #E3E6EB;
-            --silver-light: #F1F3F7;
+            --primary: #00f2ff; /* آبی فیروزه‌ای */
+            --secondary: #ff0055; /* قرمز نئونی */
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text: #ffffff;
         }
 
-        * { box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            margin: 0;
-            padding: 0;
-            font-family: Tahoma, "Segoe UI", sans-serif;
-            background-color: #f2f4f8;
-            /* این خط معجزه می‌کند: ارتفاع دقیق موبایل */
-            height: 100dvh; 
+            background-color: #050505;
+            height: 100vh;
+            height: 100dvh;
             display: flex;
-            flex-direction: column;
-            overflow: hidden; /* جلوگیری از اسکرول کل صفحه */
-        }
-
-        /* ===== هدر (ثابت بالا) ===== */
-        .hero {
-            direction: ltr;
-            background: linear-gradient(180deg, var(--navy), var(--charcoal));
-            padding: 20px;
-            text-align: center;
-            border-bottom: 3px solid var(--brick-orange);
-            flex-shrink: 0;
-            z-index: 10;
-        }
-
-        .hero h1 {
-            margin: 0;
-            font-size: 24px; /* کمی کوچک‌تر برای موبایل */
-            letter-spacing: 4px;
-            color: #fff;
-        }
-
-        .hero h1 span { color: var(--brick-orange); }
-
-        .hero p {
-            margin-top: 5px;
-            font-size: 10px;
-            letter-spacing: 3px;
-            color: rgba(255, 255, 255, .6);
-            margin-bottom: 0;
-        }
-
-        /* ===== فضای چت (وسط) ===== */
-        .chat-container {
-            flex-grow: 1; /* پر کردن فضای خالی */
-            position: relative;
-            overflow-y: auto; /* اسکرول فقط اینجا */
-            background: linear-gradient(180deg, #eef1f6, #dde3ee);
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            padding-bottom: 20px;
-        }
-
-        /* واترمارک */
-        .watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 60px; /* سایز مناسب موبایل */
-            letter-spacing: 10px;
-            font-weight: 600;
-            color: rgba(20, 26, 38, .06);
-            pointer-events: none;
-            white-space: nowrap;
-            z-index: 0;
-        }
-
-        /* ===== پیام‌ها ===== */
-        .msg {
-            max-width: 80%;
-            padding: 12px 16px;
-            margin-bottom: 12px;
-            font-size: 14px;
-            line-height: 1.6;
-            word-wrap: break-word;
-            position: relative;
-            z-index: 1;
-        }
-
-        .msg.bot {
-            align-self: flex-start;
-            background: #fff;
-            border-radius: 18px 18px 18px 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,.05);
-            color: #333;
-        }
-
-        .msg.user {
-            align-self: flex-end;
-            background: linear-gradient(145deg, rgba(197, 90, 28, .12), rgba(122, 127, 85, .08));
-            border-left: 3px solid var(--brick-orange);
-            border-radius: 18px 18px 4px 18px;
-            color: #000;
-        }
-
-        /* ===== فوتر (ثابت پایین) ===== */
-        .footer {
-            background: #fff;
-            padding: 10px 15px;
-            border-top: 1px solid rgba(0,0,0,.1);
-            display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 10px;
-            flex-shrink: 0; /* جلوگیری از جمع شدن */
-            z-index: 20;
+            font-family: 'Vazirmatn', 'Outfit', sans-serif;
+            overflow: hidden;
+            perspective: 1000px;
         }
 
-        .footer input {
-            flex: 1;
-            padding: 12px;
-            border-radius: 25px;
-            border: 1px solid #ddd;
-            background: #f9f9f9;
-            font-family: inherit;
-            font-size: 14px;
-            outline: none;
+        /* --- پس‌زمینه --- */
+        .bg-particles {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: -1;
+        }
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6;
+            animation: floatOrb 10s infinite alternate;
+        }
+        .orb-1 { width: 300px; height: 300px; background: var(--primary); top: -50px; left: -50px; }
+        .orb-2 { width: 400px; height: 400px; background: var(--secondary); bottom: -100px; right: -100px; animation-delay: -5s; }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.1); }
         }
 
-        .footer input:focus {
-            border-color: var(--brick-orange);
-            background: #fff;
+        .scene {
+            width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;
+            transform-style: preserve-3d; 
         }
 
-        .footer button {
-            background: var(--brick-orange);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-weight: bold;
-            cursor: pointer;
-            font-family: inherit;
-            white-space: nowrap;
+        .chat-card {
+            width: 90%; max-width: 450px; height: 80vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 30px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5), 0 0 20px rgba(0, 242, 255, 0.1);
+            transform-style: preserve-3d; transition: transform 0.1s ease-out;
+            display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
 
-        .footer button:disabled {
-            background: #ccc;
+        .card-header {
+            padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1);
+            transform: translateZ(40px);
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
         }
 
+        /* --- لوگوی جدید و خفن (CSS Pure) --- */
+        .tech-avatar {
+            width: 80px; height: 80px;
+            position: relative;
+            display: flex; justify-content: center; align-items: center;
+        }
+        
+        .ring {
+            position: absolute; border-radius: 50%; border: 2px solid transparent;
+            width: 100%; height: 100%;
+        }
+        
+        /* حلقه آبی */
+        .ring-1 {
+            border-top: 2px solid var(--primary); border-left: 2px solid var(--primary);
+            animation: spin 3s linear infinite;
+            filter: drop-shadow(0 0 5px var(--primary));
+        }
+        /* حلقه صورتی */
+        .ring-2 {
+            width: 85%; height: 85%;
+            border-bottom: 2px solid var(--secondary); border-right: 2px solid var(--secondary);
+            animation: spin 4s linear infinite reverse;
+            filter: drop-shadow(0 0 5px var(--secondary));
+        }
+        /* هسته مرکزی شش ضلعی */
+        .core {
+            width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: inset 0 0 10px var(--primary);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            animation: pulseCore 2s infinite alternate;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulseCore { 0% { opacity: 0.6; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+
+        .title {
+            color: var(--text); font-size: 1.4rem; font-weight: 800; letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--primary); font-family: 'Outfit', sans-serif;
+        }
+
+        .chat-area {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
+            transform: translateZ(20px); scrollbar-width: none;
+        }
+        .chat-area::-webkit-scrollbar { display: none; } 
+
+        .msg {
+            max-width: 80%; padding: 12px 18px; border-radius: 20px;
+            font-size: 0.95rem; line-height: 1.6; position: relative;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); word-wrap: break-word;
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .bot {
+            align-self: flex-start; background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05); color: #eee;
+            border-bottom-right-radius: 5px;
+        }
+
+        .user {
+            align-self: flex-end; background: linear-gradient(135deg, var(--primary), #00a8ff);
+            color: #000; font-weight: 600; border-bottom-left-radius: 5px; transform: translateZ(10px);
+        }
+
+        .img-preview { max-width: 100%; border-radius: 12px; margin-top: 5px; border: 2px solid rgba(255,255,255,0.3); }
+
+        .typing-indicator {
+            display: flex; gap: 5px; align-self: flex-start;
+            background: rgba(255,255,255,0.1); padding: 10px 15px;
+            border-radius: 20px; border-bottom-right-radius: 5px; width: fit-content;
+        }
+        .dot { width: 8px; height: 8px; background: #fff; border-radius: 50%; animation: blink 1.4s infinite both; }
+        .dot:nth-child(2) { animation-delay: 0.2s; } .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes blink { 0% { opacity: 0.2; } 20% { opacity: 1; } 100% { opacity: 0.2; } }
+
+        .input-zone {
+            padding: 20px; background: rgba(0,0,0,0.2);
+            display: flex; align-items: center; gap: 10px;
+            transform: translateZ(50px);
+        }
+
+        /* دکمه سنجاق */
+        .pin-btn {
+            width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; color: #ccc; transition: 0.3s; border-radius: 50%;
+        }
+        .pin-btn:hover { color: var(--primary); background: rgba(255,255,255,0.1); text-shadow: 0 0 10px var(--primary); }
+        .pin-btn svg { width: 24px; height: 24px; transform: rotate(45deg); }
+
+        .input-wrapper {
+            flex: 1; position: relative; background: rgba(255,255,255,0.08);
+            border-radius: 25px; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; transition: 0.3s;
+        }
+        .input-wrapper:focus-within {
+            background: rgba(255,255,255,0.15); box-shadow: 0 0 15px var(--primary); border-color: var(--primary);
+        }
+
+        input[type="text"] {
+            width: 100%; background: transparent; border: none; padding: 15px 20px;
+            color: #fff; outline: none; font-family: inherit; text-align: right; direction: rtl;
+        }
+
+        /* دکمه ارسال قرمز */
+        .send-btn {
+            width: 50px; height: 50px; border-radius: 50%; border: none;
+            background: var(--secondary); color: white; cursor: pointer;
+            box-shadow: 0 0 15px var(--secondary); transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .send-btn:hover { transform: scale(1.1); box-shadow: 0 0 25px var(--secondary); }
+        .send-btn:active { transform: scale(0.95); }
+        .send-btn svg { width: 20px; height: 20px; fill: white; margin-right: 2px; transform: rotate(180deg); }
+
+        .reflection {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 40%);
+            z-index: 10; pointer-events: none; border-radius: 30px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- هدر -->
-    <div class="hero">
-        <h1><span>WM</span> AI</h1>
-        <p>WINWIN</p>
+    <div class="bg-particles">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
     </div>
 
-    <!-- فضای چت -->
-    <div class="chat-container" id="chat-box">
-        <div class="watermark">WINWIN</div>
-        <div class="msg bot">سلام! من هوش مصنوعی WM هستم. چطور می‌تونم کمکت کنم؟ 🤚</div>
+    <div class="scene" id="scene">
+        <div class="chat-card" id="card">
+            <div class="reflection"></div>
+            
+            <div class="card-header">
+                <!-- لوگوی متحرک جدید -->
+                <div class="tech-avatar">
+                    <div class="ring ring-1"></div>
+                    <div class="ring ring-2"></div>
+                    <div class="core">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 6C13.66 6 15 7.34 15 9C15 10.66 13.66 12 12 12C10.34 12 9 10.66 9 9C9 7.34 10.34 6 12 6ZM12 20C9.33 20 7 18.66 7 16.6C7 14.83 10.33 13.8 12 13.8C13.67 13.8 17 14.83 17 16.6C17 18.66 14.67 20 12 20Z"/></svg>
+                    </div>
+                </div>
+                <div class="title">WIN AI</div>
+            </div>
+
+            <div class="chat-area" id="chat-box">
+                <div class="msg bot">
+                    سلام! من WIN AI هستم 👋<br>چطور می‌تونم کمکت کنم؟
+                </div>
+            </div>
+
+            <div class="input-zone">
+                
+                <label for="file-upload" class="pin-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                </label>
+                <input type="file" id="file-upload" hidden accept="image/*">
+
+                <div class="input-wrapper">
+                    <input type="text" id="user-input" placeholder="پیام خود را بنویسید..." autocomplete="off">
+                </div>
+                
+                <button class="send-btn" id="send-btn" onclick="sendMessage()">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- فوتر ورودی -->
-    <div class="footer">
-        <input type="text" id="user-input" placeholder="پیام خود را بنویسید..." autocomplete="off">
-        <button id="send-btn" onclick="sendMessage()">ارسال</button>
-    </div>
-
-    <!-- جاوااسکریپت -->
     <script>
-        // آدرس نهایی وب‌هوک
-        const WEBHOOK_URL = 'https://34109-qzpoy.s3.irann8n.com/webhook-test/win1';
+        // ==========================================
+        //  👇 لینک وب‌هوک خود را در خط پایین کپی کنید
+        // ==========================================
+        const WEBHOOK_URL = 'https://34109-qzpoy.s3.irann8n.com/webhook-test/win1'; 
+        // ==========================================
 
+        const card = document.getElementById('card');
         const chatBox = document.getElementById('chat-box');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
+        const fileInput = document.getElementById('file-upload');
 
-        // ارسال با Enter
-        userInput.addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                sendMessage();
-            }
+        // حرکت سه بعدی ملایم
+        document.addEventListener('mousemove', (e) => {
+            if (window.innerWidth < 768) return;
+            let xAxis = (window.innerWidth / 2 - e.pageX) / 25; 
+            let yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
         });
 
-        function appendMessage(text, sender) {
-            const div = document.createElement('div');
-            div.classList.add('msg', sender);
-            div.innerText = text;
-            chatBox.appendChild(div);
-            // اسکرول نرم به پایین
-            chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
-        }
+        document.addEventListener('mouseleave', () => {
+            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+            card.style.transition = "transform 0.5s ease";
+        });
+        
+        document.addEventListener('mouseenter', () => card.style.transition = "transform 0.1s ease-out");
 
+        // تابع ارسال پیام به وب‌هوک
         async function sendMessage() {
             const text = userInput.value.trim();
-            if (!text) return;
+            if(!text) return;
 
-            // نمایش پیام کاربر
-            appendMessage(text, 'user');
+            addMessage(text, 'user');
             userInput.value = '';
-
-            // حالت لودینگ
-            sendBtn.disabled = true;
-            sendBtn.innerText = '...';
+            toggleInput(false);
+            const loadingId = addLoading();
 
             try {
+                // ارسال به وب‌هوک
                 const response = await fetch(WEBHOOK_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text })
+                    body: JSON.stringify({ 
+                        message: text,
+                        // اگر بخواهید تاریخ و زمان هم بفرستید:
+                        timestamp: new Date().toISOString()
+                    })
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    // پشتیبانی از فرمت‌های مختلف خروجی n8n
-                    const botReply = data.output || data.text || data.message || JSON.stringify(data);
-                    appendMessage(botReply, 'bot');
-                } else {
-                    appendMessage('خطا در دریافت پاسخ.', 'bot');
-                }
+                if (!response.ok) throw new Error('Network error');
+
+                const data = await response.json();
+                
+                // n8n معمولا جواب را در فیلد output یا text برمی‌گرداند
+                const replyText = data.output || data.text || data.response || "پیام دریافت شد (بدون متن پاسخ).";
+
+                removeLoading(loadingId);
+                addMessage(replyText, 'bot');
+
             } catch (error) {
                 console.error(error);
-                appendMessage('مشکل در اتصال اینترنت.', 'bot');
+                removeLoading(loadingId);
+                // اگر وب‌هوک ست نشده باشد این پیام می‌آید
+                if (WEBHOOK_URL.includes('YOUR-WEBHOOK')) {
+                    addMessage("⚠️ لینک وب‌هوک تنظیم نشده است. لطفا فایل را ویرایش کنید.", 'bot');
+                } else {
+                    addMessage("⚠️ خطا در ارتباط با سرور.", 'bot');
+                }
             } finally {
-                sendBtn.disabled = false;
-                sendBtn.innerText = 'ارسال';
-                // فوکوس مجدد روی اینپوت (اختیاری در موبایل برای جلوگیری از باز شدن ناخواسته کیبورد)
-                // userInput.focus(); 
+                toggleInput(true);
+                userInput.focus();
             }
         }
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    addMessage(`<img src="${event.target.result}" class="img-preview">`, 'user');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function addMessage(content, sender) {
+            const div = document.createElement('div');
+            div.className = `msg ${sender}`;
+            div.innerHTML = content.replace(/\n/g, '<br>'); 
+            chatBox.appendChild(div);
+            scrollToBottom();
+        }
+
+        function addLoading() {
+            const id = 'loading-' + Date.now();
+            const div = document.createElement('div');
+            div.className = 'typing-indicator';
+            div.id = id;
+            div.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+            chatBox.appendChild(div);
+            scrollToBottom();
+            return id;
+        }
+
+        function removeLoading(id) {
+            const el = document.getElementById(id);
+            if(el) el.remove();
+        }
+
+        function scrollToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function toggleInput(state) {
+            userInput.disabled = !state;
+            sendBtn.disabled = !state;
+        }
+
+        userInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') sendMessage();
+        });
     </script>
 </body>
 </html>
