@@ -161,7 +161,12 @@
             width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;
             cursor: pointer; color: #ccc; transition: 0.3s; border-radius: 50%;
         }
-        .pin-btn:hover { color: var(--primary); background: rgba(255,255,255,0.1); text-shadow: 0 0 10px var(--primary); }
+        .pin-btn:hover, .pin-btn.active { 
+            color: var(--primary); 
+            background: rgba(0, 242, 255, 0.1); 
+            text-shadow: 0 0 10px var(--primary);
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+        }
         .pin-btn svg { width: 24px; height: 24px; transform: rotate(45deg); }
 
         .input-wrapper {
@@ -208,7 +213,6 @@
             <div class="reflection"></div>
             
             <div class="card-header">
-                <!-- لوگوی متحرک جدید -->
                 <div class="tech-avatar">
                     <div class="ring ring-1"></div>
                     <div class="ring ring-2"></div>
@@ -221,13 +225,13 @@
 
             <div class="chat-area" id="chat-box">
                 <div class="msg bot">
-                    سلام! من WIN AI هستم 👋<br>چطور می‌تونم کمکت کنم؟
+                    سلام! من WIN AI هستم 👋<br>
                 </div>
             </div>
 
             <div class="input-zone">
                 
-                <label for="file-upload" class="pin-btn">
+                <label for="file-upload" class="pin-btn" id="pin-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
                 </label>
                 <input type="file" id="file-upload" hidden accept="image/*">
@@ -245,8 +249,6 @@
 
     <script>
         // ==========================================
-        //  👇 لینک وب‌هوک شما تنظیم شده است
-        // ==========================================
         const WEBHOOK_URL = 'https://34109-qzpoy.s3.irann8n.com/webhook/win1'; 
         // ==========================================
 
@@ -255,8 +257,11 @@
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
         const fileInput = document.getElementById('file-upload');
+        const pinIcon = document.getElementById('pin-icon');
 
-        // حرکت سه بعدی ملایم
+        let currentBase64Image = ""; // متغیر برای ذخیره عکس
+
+        // افکت حرکت سه بعدی
         document.addEventListener('mousemove', (e) => {
             if (window.innerWidth < 768) return;
             let xAxis = (window.innerWidth / 2 - e.pageX) / 25; 
@@ -271,68 +276,76 @@
         
         document.addEventListener('mouseenter', () => card.style.transition = "transform 0.1s ease-out");
 
-        // تابع ارسال پیام به وب‌هوک
-        async function sendMessage() {
-            const text = userInput.value.trim();
-            if(!text) return;
-
-            addMessage(text, 'user');
-            userInput.value = '';
-            toggleInput(false);
-            const loadingId = addLoading();
-
-            try {
-                // ارسال به وب‌هوک
-                const response = await fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        message: text,
-                        timestamp: new Date().toISOString()
-                    })
-                });
-
-                if (!response.ok) throw new Error('Network error');
-
-            const data = await response.json();
-            
-            // کد اصلاح شده برای پیدا کردن پاسخ (چه در لیست باشد چه نباشد)
-            let replyText = "";
-            
-            if (Array.isArray(data) && data.length > 0) {
-                // اگر پاسخ داخل کروشه [] بود
-                replyText = data[0].output || data[0].text || data[0].response || data[0].content;
-            } else {
-                // اگر پاسخ ساده {} بود
-                replyText = data.output || data.text || data.response || data.content;
-            }
-
-            // اگر هیچ متنی پیدا نشد
-            if (!replyText) replyText = "پاسخی دریافت نشد (بررسی کنید n8n خروجی دارد؟)";
-
-            removeLoading(loadingId);
-            addMessage(replyText, 'bot');
-
-            } catch (error) {
-                console.error(error);
-                removeLoading(loadingId);
-                addMessage("⚠️ خطا در ارتباط با سرور هوش مصنوعی.", 'bot');
-            } finally {
-                toggleInput(true);
-                userInput.focus();
-            }
-        }
-
+        // مدیریت انتخاب فایل
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if(file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    addMessage(`<img src="${event.target.result}" class="img-preview">`, 'user');
+                    currentBase64Image = event.target.result; // ذخیره کد عکس
+                    pinIcon.classList.add("active"); // سبز کردن آیکون سنجاق
                 }
                 reader.readAsDataURL(file);
+            } else {
+                currentBase64Image = "";
+                pinIcon.classList.remove("active");
             }
         });
+
+        // تابع اصلی ارسال پیام
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            
+            // اگر نه متنی هست و نه عکسی، کاری نکن
+            if(!text && !currentBase64Image) return;
+
+            // 1. نمایش پیام در صفحه چت (اول عکس اگر باشد، بعد متن)
+            if (currentBase64Image) {
+                addMessage(`<img src="${currentBase64Image}" class="img-preview">`, 'user');
+            }
+            if (text) {
+                addMessage(text, 'user');
+            }
+
+            // پاکسازی ورودی‌ها
+            userInput.value = '';
+            toggleInput(false);
+            const loadingId = addLoading();
+
+            try {
+                // 2. ارسال به n8n (با فرمت درست برای ربات)
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        chatInput: text,          // کلید مورد انتظار n8n
+                        imageInput: currentBase64Image // کلید مورد انتظار n8n
+                    })
+                });
+
+                if (!response.ok) throw new Error('Network error');
+
+                const data = await response.json();
+                
+                // دریافت پاسخ از n8n (پشتیبانی از فرمت‌های مختلف خروجی)
+                const replyText = data.output || data.text || data.response || "پیام دریافت شد.";
+
+                removeLoading(loadingId);
+                addMessage(replyText, 'bot');
+
+            } catch (error) {
+                console.error(error);
+                removeLoading(loadingId);
+                addMessage("⚠️ خطا در برقراری ارتباط با سرور.", 'bot');
+            } finally {
+                // ریست کردن همه چیز برای پیام بعدی
+                toggleInput(true);
+                userInput.focus();
+                currentBase64Image = ""; // خالی کردن عکس حافظه
+                fileInput.value = "";    // خالی کردن اینپوت فایل
+                pinIcon.classList.remove("active"); // خاموش کردن چراغ سنجاق
+            }
+        }
 
         function addMessage(content, sender) {
             const div = document.createElement('div');
@@ -365,6 +378,9 @@
         function toggleInput(state) {
             userInput.disabled = !state;
             sendBtn.disabled = !state;
+            // در حین ارسال نمی‌گذاریم عکس جدید انتخاب شود
+            if (!state) pinIcon.style.pointerEvents = "none";
+            else pinIcon.style.pointerEvents = "auto";
         }
 
         userInput.addEventListener('keypress', (e) => {
